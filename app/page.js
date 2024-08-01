@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Box, Stack, Typography, Button, Modal, TextField } from '@mui/material'
+import { Box, Stack, Typography, Button, Modal, TextField, Switch } from '@mui/material'
 import { firestore } from '@/firebase'
 import {
   collection,
@@ -13,6 +13,7 @@ import {
   getDoc,
 } from 'firebase/firestore'
 
+// Styles for modal and buttons
 const style = {
   position: 'absolute',
   top: '50%',
@@ -50,11 +51,29 @@ const cardStyle = {
   },
 }
 
+// Theme Objects
+const lightTheme = {
+  background: '#fff0f5',
+  header: '#FFB6C1',
+  card: '#ffe4e1',
+  text: 'black',
+}
+
+const darkTheme = {
+  background: '#3a0a4e',
+  header: '#5e2750',
+  card: '#7b3c6e',
+  text: 'white',
+}
+
 export default function Home() {
   const [inventory, setInventory] = useState([])
   const [open, setOpen] = useState(false)
   const [itemName, setItemName] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
+  const [darkMode, setDarkMode] = useState(false)
+
+  const currentTheme = darkMode ? darkTheme : lightTheme
 
   const updateInventory = async () => {
     const snapshot = query(collection(firestore, 'inventory'))
@@ -128,15 +147,38 @@ export default function Home() {
       flexDirection="column"
       alignItems="center"
       gap={4}
-      bgcolor="#fff0f5"
+      bgcolor={currentTheme.background}
+      color={currentTheme.text}
       position="relative"
       p={2}
     >
+      {/* Theme Switch */}
+      <Box
+        position="absolute"
+        top={200}
+        left={26}
+        display="flex"
+        alignItems="center"
+        bgcolor={currentTheme.background}
+        borderRadius={2}
+        p={1}
+        boxShadow="0px 2px 4px rgba(0, 0, 0, 0.1)"
+      >
+        <Typography variant="body2" color={currentTheme.text} mr={1}>
+          Dark Mode
+        </Typography>
+        <Switch
+          checked={darkMode}
+          onChange={() => setDarkMode(!darkMode)}
+          color="default"
+        />
+      </Box>
+
       {/* Header Bar */}
       <Box
         width="100%"
         p={2}
-        bgcolor="#FFB6C1"
+        bgcolor={currentTheme.header}
         display="flex"
         justifyContent="space-between"
         alignItems="center"
@@ -225,7 +267,7 @@ export default function Home() {
         mt={2}
       >
         <Box
-          bgcolor="#FFB6C1"
+          bgcolor={currentTheme.header}
           p={2}
           display="flex"
           justifyContent="center"
@@ -237,7 +279,7 @@ export default function Home() {
         </Box>
         <Stack p={2} spacing={2} overflow="auto" maxHeight="400px">
           {filteredInventory.map(({ name, quantity, favorite = false }) => (
-            <Box key={name} sx={cardStyle}>
+            <Box key={name} sx={{ ...cardStyle, bgcolor: currentTheme.card }}>
               <Typography variant="h6" color="textPrimary">
                 {name.charAt(0).toUpperCase() + name.slice(1)}
               </Typography>
@@ -279,7 +321,7 @@ export default function Home() {
       <Box
         width="100%"
         p={2}
-        bgcolor="#FFB6C1"
+        bgcolor={currentTheme.header}
         position="absolute"
         bottom={0}
         textAlign="center"

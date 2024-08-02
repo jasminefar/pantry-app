@@ -13,6 +13,7 @@ import {
   getDoc,
 } from 'firebase/firestore'
 
+// Styles
 const style = {
   position: 'absolute',
   top: '50%',
@@ -50,11 +51,19 @@ const cardStyle = {
   },
 }
 
+const darkPinkColor = '#C71585'
+
+// Component
 export default function Home() {
   const [inventory, setInventory] = useState([])
   const [open, setOpen] = useState(false)
   const [itemName, setItemName] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
+  const [notificationOpen, setNotificationOpen] = useState(false)
+  const [welcomeMessageOpen, setWelcomeMessageOpen] = useState(false)
+  const [profileOpen, setProfileOpen] = useState(false)
+  const [username, setUsername] = useState('User')
+  const [profilePicture, setProfilePicture] = useState('')
 
   const updateInventory = async () => {
     const snapshot = query(collection(firestore, 'inventory'))
@@ -115,6 +124,18 @@ export default function Home() {
   const handleOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
 
+  const handleNotificationOpen = () => setNotificationOpen(true)
+  const handleNotificationClose = () => setNotificationOpen(false)
+
+  const handleWelcomeMessageOpen = () => {
+    handleNotificationClose()
+    setWelcomeMessageOpen(true)
+  }
+  const handleWelcomeMessageClose = () => setWelcomeMessageOpen(false)
+
+  const handleProfileOpen = () => setProfileOpen(true)
+  const handleProfileClose = () => setProfileOpen(false)
+
   // Filter items based on search query
   const filteredInventory = inventory.filter(({ name }) =>
     name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -131,6 +152,7 @@ export default function Home() {
       bgcolor="#fff0f5"
       position="relative"
       p={2}
+      overflow="auto"  // Add this line to make the page scrollable
     >
       {/* Header Bar */}
       <Box
@@ -141,12 +163,11 @@ export default function Home() {
         justifyContent="space-between"
         alignItems="center"
       >
-        <Typography variant="h4" color="white">
-          Pantry App
-        </Typography>
-        <Typography variant="h6" color="white">
-          Welcome, User!
-        </Typography>
+        <Button onClick={() => window.location.href = '/'}>Home</Button>
+        <Stack direction="row" spacing={2}>
+          <Button onClick={handleNotificationOpen}>Notifications</Button>
+          <Button onClick={handleProfileOpen}>Profile</Button>
+        </Stack>
       </Box>
 
       {/* Search Bar */}
@@ -209,70 +230,183 @@ export default function Home() {
         </Box>
       </Modal>
 
-      {/* Main Content */}
-      <Typography variant="h3" color="#FF69B4" gutterBottom>
-        Inventory Management
-      </Typography>
-      <Button variant="contained" sx={buttonStyle} onClick={handleOpen}>
-        Add New Item
-      </Button>
-      <Box
-        borderRadius={3}
-        width="800px"
-        boxShadow="0px 3px 6px rgba(0, 0, 0, 0.1)"
-        bgcolor="white"
-        overflow="hidden"
-        mt={2}
+      {/* Modal for Notifications */}
+      <Modal
+        open={notificationOpen}
+        onClose={handleNotificationClose}
+        aria-labelledby="notification-modal-title"
+        aria-describedby="notification-modal-description"
       >
-        <Box
-          bgcolor="#FFB6C1"
-          p={2}
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-        >
-          <Typography variant="h5" color="white" textAlign="center">
-            Inventory Items
+        <Box sx={{
+          ...style,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
+        }}>
+          <Typography id="notification-modal-title" variant="h6" component="h2" mb={2}>
+            Notification
           </Typography>
+          <Button variant="contained" sx={buttonStyle} onClick={handleWelcomeMessageOpen}>
+            Show Welcome Message
+          </Button>
         </Box>
-        <Stack p={2} spacing={2} overflow="auto" maxHeight="400px">
-          {filteredInventory.map(({ name, quantity, favorite = false }) => (
-            <Box key={name} sx={cardStyle}>
-              <Typography variant="h6" color="textPrimary">
-                {name.charAt(0).toUpperCase() + name.slice(1)}
-              </Typography>
-              <Typography variant="h6" color="textPrimary">
-                Quantity: {quantity}
-              </Typography>
-              <Box display="flex" alignItems="center" gap={1}>
-                <Button
-                  variant="contained"
-                  size="small"
-                  sx={buttonStyle}
-                  onClick={() => incrementItem(name)}
-                >
-                  +
-                </Button>
-                <Button
-                  variant="contained"
-                  size="small"
-                  sx={buttonStyle}
-                  onClick={() => removeItem(name)}
-                >
-                  -
-                </Button>
-                <Button
-                  variant="contained"
-                  size="small"
-                  sx={{ ...buttonStyle, bgcolor: favorite ? '#FFD700' : '#FF69B4' }}
-                  onClick={() => toggleFavorite(name, favorite)}
-                >
-                  {favorite ? '★' : '☆'}
-                </Button>
+      </Modal>
+
+      {/* Modal for Welcome Message */}
+      <Modal
+        open={welcomeMessageOpen}
+        onClose={handleWelcomeMessageClose}
+        aria-labelledby="welcome-message-modal-title"
+        aria-describedby="welcome-message-modal-description"
+      >
+        <Box sx={{
+          ...style,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
+        }}>
+          <Typography id="welcome-message-modal-title" variant="h6" component="h2" mb={2} sx={{ color: darkPinkColor }}>
+            Welcome to Lettuce Cook!
+          </Typography>
+          <Typography id="welcome-message-modal-description" mb={2} sx={{ color: darkPinkColor }}>
+            Thank you for using the Lettuce Cook App. We hope you find it helpful!
+          </Typography>
+          <Button variant="contained" sx={buttonStyle} onClick={handleWelcomeMessageClose}>
+            Close
+          </Button>
+        </Box>
+      </Modal>
+
+      {/* Modal for Profile */}
+      <Modal
+        open={profileOpen}
+        onClose={handleProfileClose}
+        aria-labelledby="profile-modal-title"
+        aria-describedby="profile-modal-description"
+      >
+        <Box sx={{
+          ...style,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
+        }}>
+          <Typography id="profile-modal-title" variant="h6" component="h2" mb={2}>
+            Profile
+          </Typography>
+          <Box mb={2}>
+            {profilePicture && (
+              <img src={profilePicture} alt="Profile" style={{ borderRadius: '50%', width: 100, height: 100 }} />
+            )}
+            <TextField
+              type="file"
+              variant="outlined"
+              onChange={(e) => {
+                const file = e.target.files[0]
+                if (file) {
+                  const reader = new FileReader()
+                  reader.onloadend = () => setProfilePicture(reader.result)
+                  reader.readAsDataURL(file)
+                }
+              }}
+              fullWidth
+              margin="normal"
+            />
+          </Box>
+          <TextField
+            variant="outlined"
+            label="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            fullWidth
+            margin="normal"
+          />
+          <Button variant="contained" sx={buttonStyle} onClick={handleProfileClose}>
+            Save
+          </Button>
+        </Box>
+      </Modal>
+
+      {/* Main Content */}
+      <Box
+        width="100%"
+        flex="1"  // Allow the content to grow and take available space
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        p={2}
+        overflow="auto"  // Make this container scrollable
+      >
+        <Typography variant="h3" color="#FF69B4" textAlign="center" gutterBottom>
+          Inventory Management
+        </Typography>
+        <Button variant="contained" sx={buttonStyle} onClick={handleOpen} style={{ display: 'block', margin: '0 auto' }}>
+          Add New Item
+        </Button>
+        <Box
+          borderRadius={3}
+          width="800px"
+          boxShadow="0px 3px 6px rgba(0, 0, 0, 0.1)"
+          bgcolor="white"
+          overflow="hidden"
+          mt={2}
+          textAlign="center"
+        >
+          <Box
+            bgcolor="#FFB6C1"
+            p={2}
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+          >
+            <Typography variant="h5" color="white" textAlign="center">
+              Inventory Items
+            </Typography>
+          </Box>
+          <Stack p={2} spacing={2} overflow="auto" maxHeight="400px">
+            {filteredInventory.map(({ name, quantity, favorite = false }) => (
+              <Box key={name} sx={cardStyle}>
+                <Typography variant="h6" color="textPrimary">
+                  {name.charAt(0).toUpperCase() + name.slice(1)}
+                </Typography>
+                <Typography variant="h6" color="textPrimary">
+                  Quantity: {quantity}
+                </Typography>
+                <Box display="flex" alignItems="center" gap={1}>
+                  <Button
+                    variant="contained"
+                    size="small"
+                    sx={buttonStyle}
+                    onClick={() => incrementItem(name)}
+                  >
+                    +
+                  </Button>
+                  <Button
+                    variant="contained"
+                    size="small"
+                    sx={buttonStyle}
+                    onClick={() => removeItem(name)}
+                  >
+                    -
+                  </Button>
+                  <Button
+                    variant="contained"
+                    size="small"
+                    sx={{ ...buttonStyle, bgcolor: favorite ? '#FFD700' : '#FF69B4' }}
+                    onClick={() => toggleFavorite(name, favorite)}
+                  >
+                    {favorite ? '★' : '☆'}
+                  </Button>
+                </Box>
               </Box>
-            </Box>
-          ))}
-        </Stack>
+            ))}
+          </Stack>
+        </Box>
       </Box>
 
       {/* Footer */}
@@ -285,7 +419,7 @@ export default function Home() {
         textAlign="center"
       >
         <Typography variant="body2" color="white">
-          © 2024 Pantry App. All rights reserved. - Jasmine Far
+          © 2024 Lettuce Cook
         </Typography>
       </Box>
     </Box>

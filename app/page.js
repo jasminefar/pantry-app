@@ -154,6 +154,21 @@ export default function Home() {
       p={2}
       overflow="auto"  // Add this line to make the page scrollable
     >
+      {/* Header Bar */}
+      <Box
+        width="100%"
+        p={2}
+        bgcolor="#FFB6C1"
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+      >
+        <Button onClick={() => window.location.href = '/'}>Home</Button>
+        <Stack direction="row" spacing={2}>
+          <Button onClick={handleNotificationOpen}>Notifications</Button>
+          <Button onClick={handleProfileOpen}>Profile</Button>
+        </Stack>
+      </Box>
 
       {/* Search Bar */}
       <TextField
@@ -404,7 +419,7 @@ export default function Home() {
         textAlign="center"
       >
         <Typography variant="body2" color="white">
-          © 2024 Lettuce Cook
+          © 2024 Lettuce Cook - Jasmine Far
         </Typography>
       </Box>
     </Box>
